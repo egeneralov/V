@@ -1,19 +1,13 @@
 #!/bin/bash
-
 . ./VE_install
 . ./VE_enchant
 . ./VE_mta
 . ./VE_nginx
 
-
-
-
 function add_site {
-	read -p "`question 'Need https?: '`" need_https
-		if [ -z "$need_https" ]
+	read -p "`question 'Need https? [y/N]: '`" need_https
+		if [[ "$need_https" == "y"]]
 		then
-			error_only "I do not recommend it, but as you wish..."
-		else
 			title "Select SSL type: "
 			echo -e "	1. Self-signed\n	2. Let\`s encrypt\n	3. Import (.crt & .key)"
 			read -p "`question 'Enter num: '`" -n 1 ssl_type;
@@ -46,6 +40,10 @@ function add_site {
 				*) rm /etc/nginx/sites-available/$1; error "You did not enter the number. Undo site adding."
 				;;
 				esac
+			ln -s /etc/nginx/sites-available/$1 /etc/nginx/sites-enabled/$1;
+		else
+			error_only "I do not recommend it, but as you wish...";
+			ln -s /etc/nginx/sites-available/$1 /etc/nginx/sites-enabled/$1;
 		fi
 }
 add_site example.org
