@@ -45,6 +45,7 @@ function add_site {
 				;;
 				*) rm /etc/nginx/sites-available/$1; error "You did not enter the number. Undo site adding."
 				;;
+				esac
 		fi
 }
 exit;
