@@ -26,7 +26,7 @@ function add_site {
 				;;
 				esac
 			title "Select site type: "
-			echo -e "	1. Static (HTML)\n	2. PHP 5\n	3. PHP 7\n	4. Proxy"
+			echo -e "		1. Static (HTML)\n		2. PHP 5\n		3. PHP 7\n		4. Proxy"
 			read -p "`question 'Enter num: '`" -n 1 site_type;
 				case "$site_type" in
 				1) nginx_https_html $1;
@@ -44,7 +44,7 @@ function add_site {
 		else
 			error_only "I do not recommend it, but as you wish...";
 			title "Select site type: "
-			echo -e "	1. Static (HTML)\n	2. PHP 5\n	3. PHP 7\n	4. Proxy"
+			echo -e "		1. Static (HTML)\n		2. PHP 5\n		3. PHP 7\n		4. Proxy"
 			read -p "`question 'Enter num: '`" -n 1 site_type;
 				case "$site_type" in
 				1) nginx_http_html $1;
