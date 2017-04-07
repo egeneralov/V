@@ -1,4 +1,4 @@
-
+#!/bin/bash
 ### backup - all for us
 
 function backup_file {

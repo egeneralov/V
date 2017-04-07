@@ -1,18 +1,24 @@
 #!/bin/bash
 . ./VE_install
 . ./VE_enchant
+. ./VE_mta
+. ./VE_nginx
+
+
 
 
 case "$1" in
 install) install
 ;;
-2)  title "2"
-	echo 2
+new-site)  new-site
 ;;
-3)  echo  "3"
+new-mailbox)  echo  "3"
 ;;
-4) echo  "4"
+del-site) echo  "4"
 ;;
 *) my_help
 ;;
 esac
+
+
+
