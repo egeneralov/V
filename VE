@@ -48,6 +48,7 @@ function add_site {
 				esac
 		fi
 }
+add_site example.org
 exit;
 
 
