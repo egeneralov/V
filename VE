@@ -8,6 +8,50 @@
 
 
 
+function add_site {
+	read -p "`question 'Need https?: '`" need_https
+		if [ -z "$need_https" ]
+		then
+			error_only "I do not recommend it, but as you wish..."
+		else
+			title "Select SSL type: "
+			echo -e "	1. Self-signed\n	2. Let\`s encrypt\n	3. Import (.crt & .key)"
+			read -p "`question 'Enter num: '`" -n 1 ssl_type;
+				case "$ssl_type" in
+				1) openssl req -x509 -newkey rsa:4096 -keyout /etc/nginx/ssl/$1.key -out /etc/nginx/ssl/$1.crt -days 365;
+				;;
+				2) acme_verify $1;
+				;;
+				3) title "Importing SSL files.";
+				read -p "`question 'Enter location for .crt [./]: '`" ssl_crt;
+				read -p "`question 'Enter location for .key [./]: '`" ssl_key;
+				cat `pwd`/$ssl_crt > /etc/nginx/ssl/$1.crt;
+				cat `pwd`/$ssl_key > /etc/nginx/ssl/$1.key;
+				;;
+				*) error_only "You did not enter the number. Undo ssl connection.";
+				;;
+				esac
+			title "Select site type: "
+			echo -e "	1. Static (HTML)\n	2. PHP 5\n	3. PHP 7\n 4. Proxy"
+			read -p "`question 'Enter num: '`" -n 1 site_type;
+				case "$site_type" in
+				1) nginx_https_html $1;
+				;;
+				2) nginx_https_php_5 $1;
+				;;
+				3) nginx_https_php_7 $1;
+				;;
+				4) read -p "`question 'Proxy [http://127.0.0.1:8000]: '`" -n 1 proxy; nginx_http_proxy $1 $proxy;
+				;;
+				*) rm /etc/nginx/sites-available/$1; error "You did not enter the number. Undo site adding.";
+				;;
+		fi
+}
+exit;
+
+
+
+
 case "$1" in
 install) install
 ;;
