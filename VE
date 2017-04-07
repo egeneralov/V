@@ -45,7 +45,7 @@ function add_site {
 			error_only "I do not recommend it, but as you wish...";
 			title "Select site type: "
 			echo -e "		1. Static (HTML)\n		2. PHP 5\n		3. PHP 7\n		4. Proxy"
-			read -p "`question 'Enter num: '`" -n 1 site_type;
+			read -p "`question 'Enter num: '`" -n 1 site_type; echo -e "\n";
 				case "$site_type" in
 				1) nginx_http_html $1;
 				;;
@@ -53,7 +53,7 @@ function add_site {
 				;;
 				3) nginx_http_php_7 $1;
 				;;
-				4) read -p "`question '\nProxy [http://127.0.0.1:8000]: '`" proxy; nginx_http_proxy $1 $proxy;
+				4) read -p "`question 'Proxy [http://127.0.0.1:8000]: '`" proxy; nginx_http_proxy $1 $proxy;
 				;;
 				*) rm /etc/nginx/sites-available/$1; error "You did not enter the number. Undo site adding."
 				;;
