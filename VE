@@ -53,7 +53,7 @@ function add_site {
 				;;
 				3) nginx_http_php_7 $1;
 				;;
-				4) read -p "`question 'Proxy [http://127.0.0.1:8000]: '`" proxy; nginx_http_proxy $1 $proxy;
+				4) read -p "`question '\nProxy [http://127.0.0.1:8000]: '`" proxy; nginx_http_proxy $1 $proxy;
 				;;
 				*) rm /etc/nginx/sites-available/$1; error "You did not enter the number. Undo site adding."
 				;;
