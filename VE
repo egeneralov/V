@@ -81,11 +81,11 @@ function del_site {
 
 }
 
-add_site example.org;
-nginx -t;
-del_site example.org;
+#add_site example.org;
+#nginx -t;
+#del_site example.org;
 
-exit;
+#exit;
 
 
 
