@@ -62,7 +62,6 @@ function install_php_5 {
 ### Complete install
 
 function install {
-#	read -p "`title 'Enter passwd for MySQL root user: '`" mysqlpasswd;
 	read -p "`question 'Enter passwd for MySQL root user: '`" mysqlpasswd
 	apt-auto;
 	install_nginx;
