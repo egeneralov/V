@@ -93,9 +93,9 @@ function del_site {
 case "$1" in
 install) install
 ;;
-add) add_site
+add) add_site $2
 ;;
-del) new
+del) del_site $2 
 ;;
 *) my_help
 ;;
