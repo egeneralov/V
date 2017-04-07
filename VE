@@ -17,10 +17,10 @@ function add_site {
 				2) acme_verify $1;
 				;;
 				3) title "Importing SSL files.";
-				read -p "`question 'Enter location for .crt [./]: '`" ssl_crt;
-				read -p "`question 'Enter location for .key [./]: '`" ssl_key;
-				cat `pwd`/$ssl_crt > /etc/nginx/ssl/$1.crt;
-				cat `pwd`/$ssl_key > /etc/nginx/ssl/$1.key;
+					read -p "`question 'Enter location for .crt [./]: '`" ssl_crt;
+					read -p "`question 'Enter location for .key [./]: '`" ssl_key;
+					cat `pwd`/$ssl_crt > /etc/nginx/ssl/$1.crt;
+					cat `pwd`/$ssl_key > /etc/nginx/ssl/$1.key;
 				;;
 				*) error_only "You did not enter the number. Undo ssl connection.";
 				;;
@@ -46,7 +46,9 @@ function add_site {
 			ln -s /etc/nginx/sites-available/$1 /etc/nginx/sites-enabled/$1;
 		fi
 }
+
 add_site example.org
+
 exit;
 
 
