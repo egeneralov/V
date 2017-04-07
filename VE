@@ -1,0 +1,18 @@
+#!/bin/bash
+. ./VE_install
+. ./VE_enchant
+
+
+case "$1" in
+install) install
+;;
+2)  title "2"
+	echo 2
+;;
+3)  echo  "3"
+;;
+4) echo  "4"
+;;
+*) my_help
+;;
+esac

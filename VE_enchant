@@ -1,0 +1,31 @@
+
+### backup - all for us
+
+function backup_file {
+	cp $1 $1.orig.`date +%Y-%m-%d-%H-%S` 	|| error "Error backup $1 as $1.orig.`date +%Y-%m-%d-%H-%S`";
+}
+
+### For errors
+
+function error {
+	echo -e "\e[31m	[E]: $1\e[0m";
+	exit;
+}
+
+function question {
+	echo -e "\e[93m [Q]: \e[32m$1\e[0m";
+}
+
+function error_only {
+	echo -e "\e[31m	[E]: $1\e[0m";
+}
+
+### For titles
+
+function title {
+	echo -e "\e[32m	[I]: $1\e[0m";
+}
+
+function my_help {
+	echo HELP;
+}
