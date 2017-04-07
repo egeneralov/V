@@ -6,7 +6,7 @@
 
 function add_site {
 	read -p "`question 'Need https? [y/N]: '`" need_https
-		if [ "$need_https" == "y"]
+		if [ "$need_https" == "y" ]
 		then
 			title "Select SSL type: "
 			echo -e "	1. Self-signed\n	2. Let\`s encrypt\n	3. Import (.crt & .key)"
