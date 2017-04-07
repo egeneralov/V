@@ -40,7 +40,7 @@ function add_site {
 				*) rm /etc/nginx/sites-available/$1; error "You did not enter the number. Undo site adding."
 				;;
 				esac
-			ln -s /etc/nginx/sites-available/$1 /etc/nginx/sites-enabled/$1;
+			ln -s /etc/nginx/sites-available/$1 /etc/nginx/sites-enabled/$1 > /dev/null 2>&1;
 		else
 			error_only "I do not recommend it, but as you wish...";
 			title "Select site type: "
@@ -58,7 +58,7 @@ function add_site {
 				*) rm /etc/nginx/sites-available/$1; error "You did not enter the number. Undo site adding."
 				;;
 				esac
-			ln -s /etc/nginx/sites-available/$1 /etc/nginx/sites-enabled/$1;
+			ln -s /etc/nginx/sites-available/$1 /etc/nginx/sites-enabled/$1 > /dev/null 2>&1;
 		fi
 }
 
