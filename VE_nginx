@@ -1,32 +1,68 @@
 #!/bin/bash
 
-#### Simplest nginx config
-
-function nginx-config-simple {
-cat <<< "server {
-	listen 80;
-	root /sites/$1;
-	index index.html;
-	server_name $1 www.$1;		
-}" > /etc/nginx/sites-available/$1
-} # nginx-config-simple
-
 #### Simplest nginx config with acme
 
-function nginx-config-acme {
-cat <<< "
+function config_acme { cat <<< "server {listen 80;root /sites/$1;index index.html;server_name $1 www.$1;location /.well-known/acme-challenge {allow all;autoindex on;}}" > /etc/nginx/sites-available/$1; } 
+function nginx_rewrite_www { cat <<< "server { server_name www.$1; listen 80; return 301 http://$1\$request_uri; }" >> /etc/nginx/sites-available/$1; }
+function nginx_rewrite_https { cat <<< "server { server_name $1; listen 80; return 301 https://$1\$request_uri? permanent; }" >> /etc/nginx/sites-available/$1; }
+function nginx_http_html { mkdir -p /sites/$1/public; cat <<< "server { listen 80; root /sites/$1/public; index index.php index.html index.htm; server_name $1;} " > /sites/$1/public;}
+function nginx_https_html {mkdir -p /sites/$1/public; cat <<< "server { listen 443 ssl; ssl_certificate /etc/nginx/ssl/$1.crt; ssl_certificate_key /etc/nginx/ssl/$1.key; root /sites/$1/public; index index.php index.html index.htm; server_name $1; }" > /sites/$1/public; }
+
+mkdir -p /sites/$1/public
+
 server {
 	listen 80;
-	root /sites/$1;
-	index index.html;
-	server_name $1 www.$1;
-	location /.well-known/acme-challenge {
-		allow all;
-		autoindex on;
+	root /sites/$1/public;
+	index index.php index.html index.htm;
+	server_name $1;
+	client_max_body_size 100m;
+	location / {
+		index  index.php index.html;
+		try_files $uri $uri/ @fallback;
 	}
-}" > /etc/nginx/sites-available/$1
+	location @fallback {
+		rewrite  ^(.*)$ /index.php?$args last;
+	}
+	location ~ \.php$ {
+		try_files $uri =404;
+		fastcgi_pass unix:/var/run/php/php7.1-fpm.sock;
+		fastcgi_param HTTP_PROXY "";
+		fastcgi_index index.php;
+		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+		include fastcgi_params;
+	}
+}
 
-} # nginx-config-acme
+
+
+mkdir -p /sites/$1/public
+
+server {
+	ssl on;
+	listen 443 ssl;
+	ssl_certificate /etc/nginx/ssl/$1.crt;
+	ssl_certificate_key /etc/nginx/ssl/$1.key;
+	root /sites/$1/public;
+	index index.php index.html index.htm;
+	server_name $1;
+	client_max_body_size 100m;
+	location / {
+		index  index.php index.html;
+		try_files $uri $uri/ @fallback;
+	}
+	location @fallback {
+		rewrite  ^(.*)$ /index.php?$args last;
+	}
+	location ~ \.php$ {
+		try_files $uri =404;
+		fastcgi_pass unix:/var/run/php/php7.1-fpm.sock;
+		fastcgi_param HTTP_PROXY "";
+		fastcgi_index index.php;
+		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+		include fastcgi_params;
+	}
+}
+
 
 
 
