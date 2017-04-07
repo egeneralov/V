@@ -93,11 +93,9 @@ exit;
 case "$1" in
 install) install
 ;;
-new-site)  new-site
+add) add_site
 ;;
-new-mailbox)  echo  "3"
-;;
-del-site) echo  "4"
+del) new
 ;;
 *) my_help
 ;;
