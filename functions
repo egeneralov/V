@@ -1,0 +1,90 @@
+#!/bin/bash
+
+function site_http {
+	echo -e "	1. http\n	2. PHP 5\n	3. PHP 7\n	4. proxy_pass";
+	read -p "`question 'Site type?: '`" site_type;
+	case "$site_type" in
+		1) nginx_http_html $1;
+		;;
+		2) nginx_http_php_5 $1;
+		;;
+		3) nginx_http_php_7 $1;
+		;;
+		4) read -p "`question 'What to proxy [like http://127.0.0.1:8000]: '`" proxy; nginx_http_proxy $1 $proxy;
+		;;
+		5) nginx_http_django $1;
+		;;
+		*) echo 1;
+		;;
+	esac
+	service nginx reload;
+	title "Domain $1 ready";
+}
+
+function site_https {
+	read -p "`question 'Need https? [y/N]: '`" site_type;
+	case "$site_type" in
+		1) nginx_https_html $1;
+		;;
+		2) nginx_https_php_5 $1;
+		;;
+		3) nginx_https_php_7 $1;
+		;;
+		4) read -p "`question 'What to proxy [like http://127.0.0.1:8000]: '`" proxy; nginx_https_proxy $1 $proxy;
+		;;
+		5) read -p "`question 'What to proxy [like http://127.0.0.1:8000]: '`" proxy; nginx_https_django $1 $proxy;
+		;;
+		*) echo 1;
+		;;
+	esac
+	service nginx reload;
+	title "Domain $1 ready";
+}
+
+function add_site {
+	if [ -z "$1" ]; then error "Specify domain name"; fi;
+	read -p "`question 'Need https? [y/N]: '`" need_https
+		if [ "$need_https" == "y" ]
+		then
+			title "Select SSL type: "
+			echo -e "	1. Self-signed\n	2. Let\`s encrypt\n	3. Import (.crt & .key)"
+			read -p "`question 'Enter num: '`" -n 1 ssl_type;
+			case "$ssl_type" in
+				1) openssl req -newkey rsa:2048 -nodes -keyout /etc/nginx/ssl/$1.key -x509 -days 365 -out /etc/nginx/ssl/$1.crt;
+				;;
+				2) acme_verify $1; site_https $1; acme_install $1; title "Site ready"; exit;
+				;;
+				3) title "Importing SSL files.";
+					read -p "`question 'Enter location for .crt [./]: '`" ssl_crt;
+					read -p "`question 'Enter location for .key [./]: '`" ssl_key;
+					cat `pwd`/$ssl_crt > /etc/nginx/ssl/$1.crt;
+					cat `pwd`/$ssl_key > /etc/nginx/ssl/$1.key;
+				;;
+				*) error_only "You did not enter the number. Undo ssl connection."; site_http $1; exit;
+				;;
+				esac
+			site_https $1;
+		else 
+			site_http $1;
+		fi;
+}
+
+function del_site {
+	read -p "`question 'Remove site $1 [y/N]? '`" -n 1 site;
+	if [ "$site" == "y" ]
+	then
+		rm 	/etc/nginx/sites-available/$1 /etc/nginx/sites-enabled/$1;
+		read -p "`question 'Delete site files [y/N]? '`" -n 1 files;
+		if [ "$files" == "y" ]
+		then
+			rm -rf /sites/$1/;
+		else
+			title "Keep $1 files in /sites/$1";
+		fi
+	else
+		title "Removing $1 was canceled.";
+	fi
+
+
+}
+

@@ -25,8 +25,8 @@ function acme_verify {
 	mkdir -p /sites/$1/public/.well-known/acme-challenge/;
 	nginx_config_acme $1;
 	ln -s /etc/nginx/sites-available/$1 /etc/nginx/sites-enabled/$1;
-	service nginx restart; nginx -t;
-	/root/.acme.sh/acme.sh --issue -d $1 -d www.$1 -w /sites/$1/public --home "/root/.acme.sh"; 
+	service nginx restart > /dev/null 2>&1;
+	/root/.acme.sh/acme.sh --issue -d $1 -d www.$1 -w /sites/$1/public --home "/root/.acme.sh" > /dev/null 2>&1;
 	rm /etc/nginx/sites-available/$1 /etc/nginx/sites-enabled/$1;
 }
 
