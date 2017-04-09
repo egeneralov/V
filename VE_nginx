@@ -26,9 +26,9 @@ function acme_verify {
 	nginx_config_acme $1;
 	ln -s /etc/nginx/sites-available/$1 /etc/nginx/sites-enabled/$1;
 	service nginx restart > /dev/null 2>&1;
-	/root/.acme.sh/acme.sh --issue -d $1 -d www.$1 -w /sites/$1/public --home "/root/.acme.sh" > /dev/null 2>&1;
+	/root/.acme.sh/acme.sh --issue -d $1 -d www.$1 -w /sites/$1/public --home "/root/.acme.sh" > /dev/null 2>&1 || error "Failed to get cert";
 	rm /etc/nginx/sites-available/$1 /etc/nginx/sites-enabled/$1;
 }
 
 
-function acme_install { /root/.acme.sh/acme.sh --install-cert --home "/root/.acme.sh" -d $1 --cert-file /etc/nginx/ssl/$1.crt --key-file /etc/nginx/ssl/$1.key --fullchain-file /etc/nginx/ssl/$1.ca --reloadcmd "service nginx reload"; }
+function acme_install { /root/.acme.sh/acme.sh --install-cert --home "/root/.acme.sh" -d $1 --cert-file /etc/nginx/ssl/$1.crt --key-file /etc/nginx/ssl/$1.key --fullchain-file /etc/nginx/ssl/$1.ca --reloadcmd "service nginx reload" > /dev/null 2>&1 || error "Failed to install cert" ; }
