@@ -7,23 +7,35 @@ function error_only { echo -e "\e[31m	[E]: $1\e[0m"; }
 function title { echo -e "\e[32m	[I]: $1\e[0m"; }
 function my_help { echo HELP; }
 
-# nginx config
+## nginx commands
+function ng_reload { service nginx reload; }
+function ng_enable { if [ ! -f "/etc/nginx/sites-available/$1" ]; then error "Site not found"; fi; mv /etc/nginx/sites-available/$1 /etc/nginx/sites-enabled/$1; }
+function ng_disable { if [ ! -f "/etc/nginx/sites-enabled/$1" ]; then error "Site not found"; fi; mv /etc/nginx/sites-enabled/$1 /etc/nginx/sites-available/$1; }
+function ng_ls_enabled { ls /etc/nginx/sites-enabled/$1; }
+function ng_ls_disabled { ls /etc/nginx/sites-available/$1; }
 ## http config
-function ng_http_html { mkdir -p /sites/$1/public; cat <<< " server { listen 80; root /sites/$1/public; index index.php index.html index.htm; server_name $1;} " > /etc/nginx/sites-enabled/$1;}
-function ng_http_php_5 { mkdir -p /sites/$1/public; cat <<< " server { listen 80; root /sites/$1/public; index index.php index.html index.htm; server_name $1; client_max_body_size 100m; location / { index  index.php index.html; rewrite  ^(.*)\$ /index.php?\$args last; } location ~ \.php\$ { try_files \$uri = 404; fastcgi_pass unix:/var/run/php5-fpm.sock; fastcgi_index index.php; fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name; include fastcgi_params; } } " > /etc/nginx/sites-enabled/$1; }
-function ng_http_php_7 { mkdir -p /sites/$1/public; cat <<< " server { listen 80; root /sites/$1/public; index index.php index.html index.htm; server_name $1; client_max_body_size 100m; location / { index  index.php index.html; rewrite  ^(.*)\$ /index.php?\$args last; } location ~ \.php\$ { try_files \$uri = 404; fastcgi_pass unix:/var/run/php/php7.1-fpm.sock; fastcgi_index index.php; fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name; include fastcgi_params; } } " > /etc/nginx/sites-enabled/$1; }
-function ng_http_proxy { mkdir -p /sites/$1/public; cat <<< " server { listen 80; root /sites/$1/public; index index.html; server_name $1; location / { proxy_pass $2; proxy_set_header Host \$server_name; proxy_set_header X-Real-IP \$remote_addr; proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for; } } " > /etc/nginx/sites-enabled/$1; }
+function ng_http_html { cat <<< " server { listen 80; root /sites/$1/public; index index.php index.html index.htm; server_name $1;} " > /etc/nginx/sites-available/$1;}
+function ng_http_php_5 { cat <<< " server { listen 80; root /sites/$1/public; index index.php index.html index.htm; server_name $1; client_max_body_size 100m; location / { index  index.php index.html; rewrite  ^(.*)\$ /index.php?\$args last; } location ~ \.php\$ { try_files \$uri = 404; fastcgi_pass unix:/var/run/php5-fpm.sock; fastcgi_index index.php; fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name; include fastcgi_params; } } " > /etc/nginx/sites-available/$1; }
+function ng_http_php_7 { cat <<< " server { listen 80; root /sites/$1/public; index index.php index.html index.htm; server_name $1; client_max_body_size 100m; location / { index  index.php index.html; rewrite  ^(.*)\$ /index.php?\$args last; } location ~ \.php\$ { try_files \$uri = 404; fastcgi_pass unix:/var/run/php/php7.1-fpm.sock; fastcgi_index index.php; fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name; include fastcgi_params; } } " > /etc/nginx/sites-available/$1; }
+function ng_http_proxy { cat <<< " server { listen 80; root /sites/$1/public; index index.html; server_name $1; location / { proxy_pass $2; proxy_set_header Host \$server_name; proxy_set_header X-Real-IP \$remote_addr; proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for; } } " > /etc/nginx/sites-available/$1; }
 ## https config
-function ng_https_html { mkdir -p /sites/$1/public; cat <<< " server { listen 443 ssl; ssl_certificate /etc/nginx/ssl/$1.crt; ssl_certificate_key /etc/nginx/ssl/$1.key; root /sites/$1/public; index index.php index.html index.htm; server_name $1; } " > /etc/nginx/sites-enabled/$1; }
-function ng_https_php_5 { mkdir -p /sites/$1/public; cat <<< " server { server_name $1; listen 443 ssl; ssl_certificate /etc/nginx/ssl/$1.crt; ssl_certificate_key /etc/nginx/ssl/$1.key; root /sites/$1/public; index index.php index.html index.htm; client_max_body_size 100m; location / { index  index.php index.html; rewrite  ^(.*)\$ /index.php?\$args last; } location ~ \\.php\$ { try_files \$uri = 404; fastcgi_pass unix:/var/run/php5-fpm.sock; fastcgi_index index.php; fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name; include fastcgi_params; } } " > /etc/nginx/sites-enabled/$1; }
-function ng_https_php_7 { mkdir -p /sites/$1/public; cat <<< " server { server_name $1; listen 443 ssl; ssl_certificate /etc/nginx/ssl/$1.crt; ssl_certificate_key /etc/nginx/ssl/$1.key; root /sites/$1/public; index index.php index.html index.htm; client_max_body_size 100m; location / { index  index.php index.html; rewrite  ^(.*)\$ /index.php?\$args last; } location ~ \\.php\$ { try_files \$uri = 404; fastcgi_pass unix:/var/run/php/php7.1-fpm.sock; fastcgi_index index.php; fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name; include fastcgi_params; } } " > /etc/nginx/sites-enabled/$1; }
-function ng_https_proxy { mkdir -p /sites/$1/public; cat <<< " server { listen 443 ssl; ssl_certificate /etc/nginx/ssl/$1.crt; ssl_certificate_key /etc/nginx/ssl/$1.key; index index.html; server_name $1; location / { proxy_pass $2; proxy_set_header Host \$server_name; proxy_set_header X-Real-IP \$remote_addr; proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for; } } " > /etc/nginx/sites-enabled/$1; }
+function ng_https_html { cat <<< " server { listen 443 ssl; ssl_certificate /etc/nginx/ssl/$1.crt; ssl_certificate_key /etc/nginx/ssl/$1.key; root /sites/$1/public; index index.php index.html index.htm; server_name $1; } " > /etc/nginx/sites-available/$1; }
+function ng_https_php_5 { cat <<< " server { server_name $1; listen 443 ssl; ssl_certificate /etc/nginx/ssl/$1.crt; ssl_certificate_key /etc/nginx/ssl/$1.key; root /sites/$1/public; index index.php index.html index.htm; client_max_body_size 100m; location / { index  index.php index.html; rewrite  ^(.*)\$ /index.php?\$args last; } location ~ \\.php\$ { try_files \$uri = 404; fastcgi_pass unix:/var/run/php5-fpm.sock; fastcgi_index index.php; fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name; include fastcgi_params; } } " > /etc/nginx/sites-available/$1; }
+function ng_https_php_7 { cat <<< " server { server_name $1; listen 443 ssl; ssl_certificate /etc/nginx/ssl/$1.crt; ssl_certificate_key /etc/nginx/ssl/$1.key; root /sites/$1/public; index index.php index.html index.htm; client_max_body_size 100m; location / { index  index.php index.html; rewrite  ^(.*)\$ /index.php?\$args last; } location ~ \\.php\$ { try_files \$uri = 404; fastcgi_pass unix:/var/run/php/php7.1-fpm.sock; fastcgi_index index.php; fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name; include fastcgi_params; } } " > /etc/nginx/sites-available/$1; }
+function ng_https_proxy { cat <<< " server { listen 443 ssl; ssl_certificate /etc/nginx/ssl/$1.crt; ssl_certificate_key /etc/nginx/ssl/$1.key; index index.html; server_name $1; location / { proxy_pass $2; proxy_set_header Host \$server_name; proxy_set_header X-Real-IP \$remote_addr; proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for; } } " > /etc/nginx/sites-available/$1; }
 ## rewrite
-function ng_rewrite_www { cat <<< " server { server_name www.$1; listen 80; return 301 http://$1\$request_uri; } " >> /etc/nginx/sites-enabled/$1; }
-function ng_rewrite_https { cat <<< " server { server_name $1; listen 80; return 301 https://$1\$request_uri? permanent; } " >> /etc/nginx/sites-enabled/$1; }
+function ng_rewrite_www { cat <<< " server { server_name www.$1; listen 80; return 301 http://$1\$request_uri; } " >> /etc/nginx/sites-available/$1; }
+function ng_rewrite_https { cat <<< " server { server_name $1; listen 80; return 301 https://$1\$request_uri? permanent; } " >> /etc/nginx/sites-available/$1; }
 ## acme - let`s encrypt cert`s
-function acme_verify { echo ''; mkdir -p /sites/$1/public/.well-known/acme-challenge/; ng_config_acme $1; ln -s /etc/nginx/sites-available/$1 /etc/nginx/sites-enabled/$1; service nginx restart > /dev/null 2>&1; /root/.acme.sh/acme.sh --issue -d $1 -d www.$1 -w /sites/$1/public --home "/root/.acme.sh" > /dev/null 2>&1 || error "Failed to get cert"; rm /etc/nginx/sites-available/$1 /etc/nginx/sites-enabled/$1; }
+function acme_verify { echo ''; mkdir -p /sites/$1/public/.well-known/acme-challenge/; ng_config_acme $1; ln -s /etc/nginx/sites-available/$1 /etc/nginx/sites-available/$1; service nginx restart > /dev/null 2>&1; /root/.acme.sh/acme.sh --issue -d $1 -d www.$1 -w /sites/$1/public --home "/root/.acme.sh" > /dev/null 2>&1 || error "Failed to get cert"; rm /etc/nginx/sites-available/$1; }
 function acme_install { /root/.acme.sh/acme.sh --install-cert --home "/root/.acme.sh" -d $1 --cert-file /etc/nginx/ssl/$1.crt --key-file /etc/nginx/ssl/$1.key --fullchain-file /etc/nginx/ssl/$1.ca --reloadcmd "service nginx reload" > /dev/null 2>&1 || error "Failed to install cert" ; }
+
+function add_site_http {
+	echo -e "";
+	read -p "`question 'Site type for $1? '`" -n 1 site_type;
+	case "$site_type" in
+	1) ng_http_html;
+}
 
 function add_site {
 	if [ -z "$1" ]; then error "Specify domain name."; fi;
@@ -31,6 +43,21 @@ function add_site {
 	if [[ "$add_site" != "y" || "$add_site" != "Y" ]]; then error "Aborted"; fi;
 	echo -e "\n\n\n\n\n\n" | adduser --quiet --disabled-password --shell /bin/bash --home /sites/$1 --ingroup www-data $1 --force-badname > /dev/null 2>&1;
 	read -p "`question 'Password : '`" passwd;
-	echo "site.org:$passwd" | chpasswd;
+	echo "$1:$passwd" | chpasswd > /dev/null 2>&1;
+	mkdir -p /sites/site.org/{public,ssl,backup};
+	chown -R $1:www-data /sites/$1;
+	read -p "`question 'Need SSL $1? [y/N]: '`" -n 1 need_ssl;
+	
 }
 
+function del_site {
+	if [ -z "$1" ]; then error "Specify domain name."; fi;
+	read -p "`question 'Del site $1? [y/N]: '`" -n 1 del_site;
+	if [[ "$del_site" != "y" || "$del_site" != "Y" ]]; then error "Aborted"; fi;
+	read -p "`question 'Del files $1? [y/N]: '`" -n 1 del_files;
+	if [[ "$del_files" == "y" || "$del_files" == "Y" ]]; then deluser $1 > /dev/null 2>&1; rm -rf /sites/$1; fi;
+	read -p "`question 'Del database for $1? [y/N]: '`" -n 1 del_database;
+	read -p "`question 'MySQL root password: '`" -n 1 mysqlpasswd;
+	if [[ "$del_database" == "y" || "$del_database" == "Y" ]]; then mysql -p$mysqlpasswd "DROP DATABASE $1; DROP USER IF EXISTS $1;"; fi;
+
+}
