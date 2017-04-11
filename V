@@ -29,8 +29,12 @@ function ng_rewrite_https { cat <<< " server { server_name $1; listen 80; return
 ## acme - let`s encrypt cert`s
 function acme_verify { echo ''; mkdir -p /sites/$1/public/.well-known/acme-challenge/; ng_config_acme $1; ln -s /etc/nginx/sites-available/$1 /etc/nginx/sites-available/$1; service nginx restart > /dev/null 2>&1; /root/.acme.sh/acme.sh --issue -d $1 -d www.$1 -w /sites/$1/public --home "/root/.acme.sh" > /dev/null 2>&1 || error "Failed to get cert"; rm /etc/nginx/sites-available/$1; }
 function acme_install { /root/.acme.sh/acme.sh --install-cert --home "/root/.acme.sh" -d $1 --cert-file /etc/nginx/ssl/$1.crt --key-file /etc/nginx/ssl/$1.key --fullchain-file /etc/nginx/ssl/$1.ca --reloadcmd "service nginx reload" > /dev/null 2>&1 || error "Failed to install cert" ; }
+function ssl_acme { title "Try to get certificate from let's encrypt"; ng_config_acme $1; ng_reload; acme_verify $1 || error "Failed to get certificate."; acme_install $1 || error "Failed to install certificate"; title "Installed ssl certificate from let's encrypt"; }
+function ssl_generate { title "Please, answer for simple questions."; openssl req -newkey rsa:2048 -nodes -keyout /etc/nginx/ssl/$1.key -x509 -days 365 -out /etc/nginx/ssl/$1.crt || error "Failed to generate ssl cert"; }
+function ssl_import {}
 
 function add_site_http {
+	echo -e "\t1. [HTML]\n\t2. PHP 5\n\t3. PHP 7\n\t4. Proxy";
 	read -p "`question 'Site type for $1? '`" -n 1 site_type;
 	case "$site_type" in
 	1) ng_http_html $1; ng_enable $1; ng_reload;
@@ -47,18 +51,30 @@ function add_site_http {
 }
 
 function add_site_https {
+	echo -e "\n\t1. [Generate self-signed]\n\t2. Let's encrypt\n\t3. Import .crt & .key";
+	read -p "`question 'SSL type for $1? '`" -n 1 ssl_type;
+	case "$ssl_type" in
+	1) ssl_generate $1;
+	;;
+	2) ssl_acme $1;
+	;;
+	3) ssl_import $1;
+	;;
+	*) 
+	;;
 
+	echo -e "\n\t1. [HTML]\n\t2. PHP 5\n\t3. PHP 7\n\t4. Proxy";
 	read -p "`question 'Site type for $1? '`" -n 1 site_type;
 	case "$site_type" in
-	1) ng_http_html $1; ng_enable $1; ng_reload;
+	1) ng_https_html $1; ng_enable $1; ng_reload;
 	;;
-	2) ng_http_php_5 $1; ng_enable $1; ng_reload;
+	2) ng_https_php_5 $1; ng_enable $1; ng_reload;
 	;;
-	3) ng_http_php_7 $1; ng_enable $1; ng_reload;
+	3) ng_https_php_7 $1; ng_enable $1; ng_reload;
 	;;
-	4) ng_http_proxy $1; ng_enable $1; ng_reload;
+	4) ng_https_proxy $1; ng_enable $1; ng_reload;
 	;;
-	*) ng_http_html $1; ng_enable $1; ng_reload; error_only "Wrong number."; title "Site $1 was created as html site.";
+	*) ng_https_html $1; ng_enable $1; ng_reload; error_only "Wrong number."; title "Site $1 was created as html site.";
 	;;
 	esac
 }
