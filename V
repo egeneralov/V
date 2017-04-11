@@ -85,7 +85,7 @@ function add_site_https {
 function add_site {
 	if [ -z "$1" ]; then error "Specify domain name."; fi;
 	read -p "`question 'Add site $1? [y/N]: '`" -n 1 add_site;
-	if [[ "$add_site" != "y" || "$add_site" != "Y" ]]; then error "Aborted"; fi;
+#	if [[ "$add_site" != "y" || "$add_site" != "Y" ]]; then error "Aborted"; fi;
 	echo -e "\n\n\n\n\n\n" | adduser --quiet --disabled-password --shell /bin/bash --home /sites/$1 --ingroup www-data $1 --force-badname > /dev/null 2>&1;
 	read -p "`question 'Password : '`" passwd;
 	echo "$1:$passwd" | chpasswd > /dev/null 2>&1;
