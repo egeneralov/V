@@ -31,7 +31,7 @@ function acme_verify { echo ''; mkdir -p /sites/$1/public/.well-known/acme-chall
 function acme_install { /root/.acme.sh/acme.sh --install-cert --home "/root/.acme.sh" -d $1 --cert-file /etc/nginx/ssl/$1.crt --key-file /etc/nginx/ssl/$1.key --fullchain-file /etc/nginx/ssl/$1.ca --reloadcmd "service nginx reload" > /dev/null 2>&1 || error "Failed to install cert" ; }
 function ssl_acme { title "Try to get certificate from let's encrypt"; ng_config_acme $1; ng_reload; acme_verify $1 || error "Failed to get certificate."; acme_install $1 || error "Failed to install certificate"; title "Installed ssl certificate from let's encrypt"; }
 function ssl_generate { title "Please, answer for simple questions."; openssl req -newkey rsa:2048 -nodes -keyout /etc/nginx/ssl/$1.key -x509 -days 365 -out /etc/nginx/ssl/$1.crt || error "Failed to generate ssl cert"; }
-function ssl_import {}
+function ssl_import { title "Importing SSL files. "; pwd=`pwd`; read -p "`question 'Enter location for .crt [$pwd/]: '`" ssl_crt; read -p "`question 'Enter location for .key [./]: '`" ssl_key; cat `pwd`/$ssl_crt > /etc/nginx/ssl/$1.crt || error "Failed to write crt"; cat `pwd`/$ssl_key > /etc/nginx/ssl/$1.key || error "Failed to write key"; }
 
 function add_site_http {
 	echo -e "\t1. [HTML]\n\t2. PHP 5\n\t3. PHP 7\n\t4. Proxy";
