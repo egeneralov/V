@@ -96,15 +96,15 @@ function add_site {
 	chown -R $1:www-data /sites/$1;
 	read -p "`question 'Need SSL $1? [y/N]: '`" -n 1 need_ssl;
 	case "$need_ssl" in
-	n) title "Adding http"; add_site_http $1;
+	n) add_site_http $1;
 	;;
-	N) title "Adding http"; add_site_http $1;
+	N) add_site_http $1;
 	;;
-	y) title "Adding https"; add_site_https $1;
+	y) add_site_https $1;
 	;;
-	Y) title "Adding https"; add_site_https $1;
+	Y) add_site_https $1;
 	;;
-	*) title "Adding http"; add_site_http $1;
+	*) add_site_http $1;
 	;;
 	esac;
 	title "Site ready";
