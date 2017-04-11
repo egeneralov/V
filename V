@@ -67,17 +67,17 @@ function add_site_https {
 	;;
 	esac
 	echo -e "\n\t1. [HTML]\n\t2. PHP 5\n\t3. PHP 7\n\t4. Proxy";
-	read -p "`question 'Site type for $1? '`" -n 1 site_type;
+	read -p "`question 'Site type? '`" -n 1 site_type;
 	case "$site_type" in
-	1) ng_https_html $1; ng_enable $1; ng_reload;
+	1) ng_https_html $1; ng_reload;
 	;;
-	2) ng_https_php_5 $1; ng_enable $1; ng_reload;
+	2) ng_https_php_5 $1; ng_reload;
 	;;
-	3) ng_https_php_7 $1; ng_enable $1; ng_reload;
+	3) ng_https_php_7 $1; ng_reload;
 	;;
-	4) ng_https_proxy $1; ng_enable $1; ng_reload;
+	4) ng_https_proxy $1; ng_reload;
 	;;
-	*) ng_https_html $1; ng_enable $1; ng_reload; error_only "Wrong number."; title "Site $1 was created as html site.";
+	*) ng_https_html $1; ng_reload; error_only "Wrong number."; title "Site $1 was created as html site.";
 	;;
 	esac
 	title "Nginx config ready and applied";
