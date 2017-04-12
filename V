@@ -90,6 +90,11 @@ function add_mysql_database {
 	title "MySQL database & user: $domain";	title "MySQL passwd for user $domain: $passwd";
 }
 
+function del_mysql_database {
+	echo "DROP DATABASE $1;" | mysql -p$2 mysql > /dev/null 2>&1 && title "Database was deleted." || error_only "drop database failed";
+}
+
+
 function add_site_http {
 	# Ask site type
 	echo -e "\t1. [HTML]\n\t2. PHP 5\n\t3. PHP 7\n\t4. Proxy"; read -p "`question 'Site type for $1? '`" -n 1 site_type;
