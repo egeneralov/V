@@ -43,7 +43,7 @@ function install_php_5 { title "Installig PHP 5"; apt-get install -y php5 php5-c
 function install { read -p "`question 'Enter passwd for MySQL root user: '`" mysqlpasswd; read -p "`question 'Enter domain for mail: '`" maildomain; apt-auto; install_nginx; install_acme; install_php_5; install_php_7; install_mysql $mysqlpasswd; install_mta $maildomain $mysqlpasswd; }
 
 # MTA functions
-function add_mail_domain { echo "REPLACE INTO `domains` SET `domain` = '$1';" | mysql -p$2 mail; }
+function add_mail_domain { echo "REPLACE INTO \`domains\` SET \`domain\` = '$1';" | mysql -p$2 mail; }
 function add_mail_user { domain=$1; email="$2@$domain"; password=$3; mysqlrootpasswd=$4; echo "INSERT INTO \`domains\` (\`domain\`) VALUES ('$domain');" | mysql -p$2 mail; echo "INSERT INTO \`users\` (\`email\`, \`password\`, \`quota\`, \`domain\`) VALUES ('$user@$domain', encrypt('$password'), '20971520', '$domain');" | mysql -p$mysqlrootpasswd mail > /dev/null 2>&1; }
 
 # enchant output
