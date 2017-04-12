@@ -98,7 +98,7 @@ function add_site_http {
 	;;
 	4) ng_http_proxy $1; ng_rewrite_www $1;
 	;;
-	*) ng_http_html $1; error_only "Wrong number."; title "Site $1 was created as html site.";
+	*) ng_http_html $1; ng_rewrite_www $1; error_only "Wrong number."; title "Site $1 was created as html site.";
 	;;
 	esac;
 	ng_enable $1; ng_reload;
@@ -121,15 +121,15 @@ function add_site_https {
 	# Ask site type
 	echo -e "\n\t1. [HTML]\n\t2. PHP 5\n\t3. PHP 7\n\t4. Proxy"; read -p "`question 'Site type? '`" -n 1 site_type; echo '';
 	case "$site_type" in
-	1) ng_https_html $1;
+	1) ng_https_html $1; ng_rewrite_www $1; ng_rewrite_https $1;
 	;;
-	2) ng_https_php_5 $1;
+	2) ng_https_php_5 $1; ng_rewrite_www $1; ng_rewrite_https $1;
 	;;
-	3) ng_https_php_7 $1;
+	3) ng_https_php_7 $1; ng_rewrite_www $1; ng_rewrite_https $1;
 	;;
-	4) ng_https_proxy $1;
+	4) ng_https_proxy $1; ng_rewrite_www $1; ng_rewrite_https $1;
 	;;
-	*) ng_https_html $1; error_only "Wrong number."; title "Site $1 was created as html site.";
+	*) ng_https_html $1; ng_rewrite_www $1; ng_rewrite_https $1; error_only "Wrong number."; title "Site $1 was created as html site.";
 	;;
 	esac
 	ng_enable $1; ng_reload;
