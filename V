@@ -6,8 +6,8 @@ function install_mta {
 	git clone https://github.com/egeneralov/mta.git > /dev/null 2>&1;
 	cd mta;
 	openssl req -nodes -newkey rsa:2048 -keyout postfix/server.key -out postfix/server.crt -subj "/C=RU/ST=Name Surname/L=Location/O=Company/OU=Department/CN=$domain" > /dev/null 2>&1;
+	apt-get purge exim\*;
 	apt-get install -y dovecot-core dovecot-imapd dovecot-mysql dovecot-pop3d dovecot-sieve postfix postfix-mysql > /dev/null 2>&1 || error "Installing MTA from apt failed";
-
 	debconf-set-selections <<< "postfix postfix/mailname string $domain";
 	debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Internet Site'";
 	/etc/init.d/postfix stop > /dev/null 2>&1; /etc/init.d/dovecot stop > /dev/null 2>&1;
