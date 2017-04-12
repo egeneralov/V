@@ -141,7 +141,7 @@ function add_site {
 	title "Adding mail support";
 	read -p "`question 'MySQL root password: '`" -n 1 mysqlrootpasswd;
 	add_mail_domain $1 $2 || error_only "Failed to apply mail support for $1";
-	add_mysql_database $1;
+	add_mysql_database $1 $mysqlrootpasswd;
 }
 
 function del_site {
