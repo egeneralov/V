@@ -167,7 +167,7 @@ function add_site {
 	title "Nginx ready";
 	title "Adding mail support";
 	read -p "`question 'MySQL root password: '`" mysqlrootpasswd;
-	add_mail_domain $1 $2 || error_only "Failed to apply mail support for $1";
+	add_mail_domain $1 $mysqlrootpasswd || error_only "Failed to apply mail support for $1";
 	title "Creating MySQL database and user";
 	add_mysql_database "$1" "$mysqlrootpasswd";
 }
