@@ -190,6 +190,8 @@ add_mail) add_mail_user;
 ;;
 del_mail) del_mail_user;
 ;;
+ls) ng_ls_enabled; ng_ls_disabled;
+;;
 *) my_help;
 ;;
 esac;
