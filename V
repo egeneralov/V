@@ -85,7 +85,7 @@ function ssl_import { title "Importing SSL files. "; pwd=`pwd`; read -p "`questi
 
 function add_mysql_database {
 	domain=$1; mysqlrootpasswd=$2; passwd=`openssl rand -base64 10`;
-	echo "CREATE DATABASE '$domain';" | mysql -p$mysqlrootpasswd mysql > /dev/null 2>&1 || errot_only "create database failed";
+	echo "CREATE DATABASE '$domain';" | mysql -p$mysqlrootpasswd mysql > /dev/null 2>&1 || error_only "create database failed";
 	echo "CREATE USER '$domain'@'%' IDENTIFIED BY '$password';" | mysql -p$mysqlrootpasswd mail > /dev/null 2>&1 || error_only "create user failed";
 	title "MySQL passwd for user $domain: $password";
 }
