@@ -22,12 +22,12 @@ The project is the easiest solution in its category. Clear and silient installat
 
 ### Functional
 
-- V **install**     # perform installation
-- V **ls**      # list of enabled and disabled sites.
-- V **add_site** *domain.org*       # add site in interactive mode
-- V **del_site** *domain.org*       # remove site in interactive mode
-- V **add_mail-user**       # add mailuser to exist mail domain in interactive mode
-- V **del_mail_user**       # add mailuser to exist mail domain in interactive mode
+- V **install**     *# perform installation*
+- V **ls**      *# list of enabled and disabled sites.*
+- V **add_site** domain.org       *# add site in interactive mode*
+- V **del_site** domain.org       *# remove site in interactive mode*
+- V **add_mail-user**       *# add mailuser to exist mail domain in interactive mode*
+- V **del_mail_user**       *# add mailuser to exist mail domain in interactive mode*
 
 
 ## ToDo
