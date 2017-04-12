@@ -1,9 +1,7 @@
 #!/bin/bash
 ### backup - all for us
 
-function backup_file {
-	cp $1 $1.orig.`date +%Y-%m-%d-%H-%S` 	|| error "Error backup $1 as $1.orig.`date +%Y-%m-%d-%H-%S`";
-}
+function backup_file { cp $1 $1.orig.`date +%Y-%m-%d-%H-%S` || error "Error backup $1 as $1.orig.`date +%Y-%m-%d-%H-%S`"; }
 
 ### For errors
 
