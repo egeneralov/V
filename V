@@ -11,8 +11,8 @@ function my_help { echo HELP; }
 
 ## nginx commands
 function ng_reload { service nginx reload; }
-function ng_enable { if [ ! -f "/etc/nginx/sites-enabled/$1" ]; then error "Site not found"; fi; mv /etc/nginx/sites-available/$1 /etc/nginx/sites-enabled/$1; }
-function ng_disable { if [ ! -f "/etc/nginx/sites-enabled/$1" ]; then error "Site not found"; fi; mv /etc/nginx/sites-enabled/$1 /etc/nginx/sites-available/$1; }
+function ng_enable { if [ ! -f "/etc/nginx/sites-enabled/$1" ]; then error "Site not found"; fi; mv /etc/nginx/sites-available/$1 /etc/nginx/sites-enabled/; }
+function ng_disable { if [ ! -f "/etc/nginx/sites-enabled/$1" ]; then error "Site not found"; fi; mv /etc/nginx/sites-enabled/$1 /etc/nginx/sites-available; }
 function ng_ls_enabled { ls /etc/nginx/sites-enabled/$1; }
 function ng_ls_disabled { ls /etc/nginx/sites-enabled/$1; }
 ## http config
