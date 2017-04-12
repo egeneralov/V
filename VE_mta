@@ -6,7 +6,7 @@
 #mysqlrootpasswd
 
 function install_mta {
-	domain=$1; mysqlrootpasswd=$2; echo $domain > /etc/mailname; title "Installing MTA (postfix & dovecot).";
+	domain=$1; mysqlrootpasswd=$2; mailpasswd=$2; echo $domain > /etc/mailname; title "Installing MTA (postfix & dovecot).";
 	git clone https://github.com/egeneralov/mta.git > /dev/null 2>&1;
 	cd mta;
 	openssl req -nodes -newkey rsa:2048 -keyout postfix/server.key -out postfix/server.crt -subj "/C=RU/ST=Name Surname/L=Location/O=Company/OU=Department/CN=$domain" > /dev/null 2>&1;
