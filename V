@@ -56,6 +56,12 @@ function ssl_acme { echo ''; title "Try to get certificate from let's encrypt"; 
 function ssl_generate { title "Please, answer for simple questions."; openssl req -newkey rsa:2048 -nodes -keyout /etc/nginx/ssl/$1.key -x509 -days 365 -out /etc/nginx/ssl/$1.crt || error "Failed to generate ssl cert"; title "SSL certificate generated"; }
 function ssl_import { title "Importing SSL files. "; pwd=`pwd`; read -p "`question 'Enter location for .crt [$pwd/]: '`" ssl_crt; read -p "`question 'Enter location for .key [./]: '`" ssl_key; cat `pwd`/$ssl_crt > /etc/nginx/ssl/$1.crt || error "Failed to write crt"; cat `pwd`/$ssl_key > /etc/nginx/ssl/$1.key || error "Failed to write key"; title "Import succeseful"; }
 
+function add_mysql_database {
+	domain=$1; mysqlrootpasswd=$2;
+	echo "CREATE DATABASE '$domain';" | mysql -p$mysqlrootpasswd mysql > /dev/null 2>&1 || errot_only "create database failed";
+	echo "CREATE USER '$domain'@'localhost' IDENTIFIED BY '$password';" | mysql -p$mysqlrootpasswd mail > /dev/null 2>&1 || error_only "create user failed";
+}
+
 function add_site_http {
 	echo -e "\t1. [HTML]\n\t2. PHP 5\n\t3. PHP 7\n\t4. Proxy";
 	read -p "`question 'Site type for $1? '`" -n 1 site_type;
@@ -71,6 +77,8 @@ function add_site_http {
 	*) ng_http_html $1; ng_enable $1; ng_reload; error_only "Wrong number."; title "Site $1 was created as html site.";
 	;;
 	esac;
+	ng_enable $1; ng_reload;
+	title "Nginx config ready and applied";
 }
 
 function add_site_https {
@@ -128,7 +136,11 @@ function add_site {
 	*) add_site_http $1;
 	;;
 	esac;
-	title "Site ready";
+	title "Nginx ready";
+	title "Adding mail support";
+	read -p "`question 'MySQL root password: '`" -n 1 mysqlrootpasswd;
+	add_mail_domain $1 $2 || error_only "Failed to apply mail support for $1";
+	add_mysql_database $1;
 }
 
 function del_site {
