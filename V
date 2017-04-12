@@ -186,9 +186,9 @@ add_site) add_site $2;
 ;;
 del_site) del_site $2;
 ;;
-add_mail) 
+add_mail) add_mail_user;
 ;;
-del_mail) 
+del_mail) del_mail_user;
 *) my_help;
 ;;
 esac;
