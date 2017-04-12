@@ -1,7 +1,30 @@
 #!/bin/bash
 
-. ./VE_mta
+### Install MTA
+function install_mta {
+	domain=$1; mysqlrootpasswd=$2; mailpasswd=$2; echo $domain > /etc/mailname; title "Installing MTA (postfix & dovecot).";
+	git clone https://github.com/egeneralov/mta.git > /dev/null 2>&1;
+	cd mta;
+	openssl req -nodes -newkey rsa:2048 -keyout postfix/server.key -out postfix/server.crt -subj "/C=RU/ST=Name Surname/L=Location/O=Company/OU=Department/CN=$domain" > /dev/null 2>&1;
+	apt-get install -y dovecot-core dovecot-imapd dovecot-mysql dovecot-pop3d dovecot-sieve postfix postfix-mysql > /dev/null 2>&1 || error "Installing MTA from apt failed";
 
+	debconf-set-selections <<< "postfix postfix/mailname string $domain";
+	debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Internet Site'";
+	/etc/init.d/postfix stop > /dev/null 2>&1; /etc/init.d/dovecot stop > /dev/null 2>&1;
+	groupadd -g 5000 vmail > /dev/null 2>&1; useradd -g vmail -u 5000 vmail -d /home/vmail > /dev/null 2>&1;
+	mkdir -p /home/vmail/$domain/$user; chown -R vmail:vmail /home/vmail/;
+	echo "CREATE DATABASE mail;" | mysql -p$mysqlrootpasswd mysql > /dev/null 2>&1 || error_only "create database failed";
+	echo "CREATE USER 'mail'@'localhost' IDENTIFIED BY '$mailpasswd';" | mysql -p$mysqlrootpasswd mail > /dev/null 2>&1 || error_only "create mail db user failed";
+	echo "GRANT ALL PRIVILEGES ON mail.* TO 'mail'@'localhost';" | mysql -p$mysqlrootpasswd mail > /dev/null 2>&1 ||error_only "mysql set user permissions failed";
+	echo "FLUSH PRIVILEGES;" | mysql -p$mysqlrootpasswd mail > /dev/null 2>&1 || error_only "flush privileges failed";
+	mysql -p$mysqlrootpasswd mail < mail.sql > /dev/null 2>&1 || error_only "import sql file to mail db failed";
+	sed -i "s/mynewpassword/$mailpasswd/g" postfix/virtual_* dovecot/dovecot-sql.conf;
+	rm -rf /etc/dovecot || error_only "remove /etc/dovecot failed"; rm -rf /etc/postfix || error_only "remove /etc/postfix failed";
+	cp -r postfix /etc/ || error_only "replace dovecot config failed"; cp -r dovecot /etc/ || error_only "replace postfix config failed";
+	sed -i "s/$mailpasswd/mynewpassword/g" postfix/virtual_* dovecot/dovecot-sql.conf;
+	/etc/init.d/postfix start > /dev/null 2>&1 || error_only "postfix start failed"; /etc/init.d/dovecot start > /dev/null 2>&1 || error_only "dovecot start failed";
+	cd ..; rm -rf mta;
+}
 ### repository for php-7
 function add_repo_dotdeb { title "Adding dotdeb.org repo";  apt-get install -y curl > /dev/null >&1 || error "Curl installation failed."; backup_file /etc/apt/sources.list; echo "deb http://packages.dotdeb.org jessie all" >> /etc/apt/sources.list; curl https://www.dotdeb.org/dotdeb.gpg -s | apt-key add - > /dev/null 2>&1 || error "Apt error. Check network"; apt-get update > /dev/null 2>&1 || error "Apt error. Check network"; }
 ### APT
@@ -18,6 +41,10 @@ function install_php_7 { add_repo_dotdeb; title "Installig PHP 7"; apt-get insta
 function install_php_5 { title "Installig PHP 5"; apt-get install -y php5 php5-cli php5-apcu php5-geoip php5-gnupg php5-imagick php5-json php5-memcache php5-memcached php5-oauth php5-pecl-http php5-redis php5-cgi php5-curl php5-fpm php5-enchant php5-gd php5-imap php5-gmp php5-intl php5-ldap php5-mcrypt php5-mysql php5-odbc php5-pgsql php5-readline php5-tidy php5-xmlrpc php5-sqlite php5-xsl > /dev/null 2>&1 || error "PHP 5 installation error"; }
 ### Complete install
 function install { read -p "`question 'Enter passwd for MySQL root user: '`" mysqlpasswd; read -p "`question 'Enter domain for mail: '`" maildomain; apt-auto; install_nginx; install_acme; install_php_5; install_php_7; install_mysql $mysqlpasswd; install_mta $maildomain $mysqlpasswd; }
+
+# MTA functions
+function add_mail_domain { echo "REPLACE INTO `domains` SET `domain` = '$1';" | mysql -p$2 mail; }
+function add_mail_user { domain=$1; email="$2@$domain"; password=$3; mysqlrootpasswd=$4; echo "INSERT INTO \`domains\` (\`domain\`) VALUES ('$domain');" | mysql -p$2 mail; echo "INSERT INTO \`users\` (\`email\`, \`password\`, \`quota\`, \`domain\`) VALUES ('$user@$domain', encrypt('$password'), '20971520', '$domain');" | mysql -p$mysqlrootpasswd mail > /dev/null 2>&1; }
 
 # enchant output
 function error { echo -e "\e[31m	[E]: $1\e[0m"; exit; }
@@ -64,8 +91,8 @@ function add_mysql_database {
 }
 
 function add_site_http {
-	echo -e "\t1. [HTML]\n\t2. PHP 5\n\t3. PHP 7\n\t4. Proxy";
-	read -p "`question 'Site type for $1? '`" -n 1 site_type;
+	# Ask site type
+	echo -e "\t1. [HTML]\n\t2. PHP 5\n\t3. PHP 7\n\t4. Proxy"; read -p "`question 'Site type for $1? '`" -n 1 site_type;
 	case "$site_type" in
 	1) ng_http_html $1; ng_enable $1; ng_reload;
 	;;
@@ -83,8 +110,8 @@ function add_site_http {
 }
 
 function add_site_https {
-	echo -e "\n\t1. [Generate self-signed]\n\t2. Let's encrypt\n\t3. Import .crt & .key";
-	read -p "`question 'SSL type for $1? '`" -n 1 ssl_type;
+	# Ask ssl type
+	echo -e "\n\t1. [Generate self-signed]\n\t2. Let's encrypt\n\t3. Import .crt & .key"; read -p "`question 'SSL type for $1? '`" -n 1 ssl_type;
 	case "$ssl_type" in
 	1) ssl_generate $1;
 	;;
@@ -95,8 +122,8 @@ function add_site_https {
 	*) rm -rf /sites/$1; deluser $1 > /dev/null 2>&1; error "Must have action number for ssl adding";
 	;;
 	esac
-	echo -e "\n\t1. [HTML]\n\t2. PHP 5\n\t3. PHP 7\n\t4. Proxy";
-	read -p "`question 'Site type? '`" -n 1 site_type; echo '';
+	# Ask site type
+	echo -e "\n\t1. [HTML]\n\t2. PHP 5\n\t3. PHP 7\n\t4. Proxy"; read -p "`question 'Site type? '`" -n 1 site_type; echo '';
 	case "$site_type" in
 	1) ng_https_html $1;
 	;;
@@ -141,6 +168,7 @@ function add_site {
 	title "Adding mail support";
 	read -p "`question 'MySQL root password: '`" -n 1 mysqlrootpasswd;
 	add_mail_domain $1 $2 || error_only "Failed to apply mail support for $1";
+	title "Creating MySQL database and user";
 	add_mysql_database $1 $mysqlrootpasswd;
 }
 
@@ -153,7 +181,6 @@ function del_site {
 	read -p "`question 'Del database for $1? [y/N]: '`" -n 1 del_database;
 	read -p "`question 'MySQL root password: '`" -n 1 mysqlpasswd;
 	if [[ "$del_database" == "y" || "$del_database" == "Y" ]]; then mysql -p$mysqlpasswd "DROP DATABASE $1; DROP USER IF EXISTS $1;"; fi;
-
 }
 
 case "$1" in
