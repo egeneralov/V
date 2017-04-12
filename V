@@ -17,7 +17,7 @@ function install_php_7 { add_repo_dotdeb; title "Installig PHP 7"; apt-get insta
 ### Install php 5 (123 mb)
 function install_php_5 { title "Installig PHP 5"; apt-get install -y php5 php5-cli php5-apcu php5-geoip php5-gnupg php5-imagick php5-json php5-memcache php5-memcached php5-oauth php5-pecl-http php5-redis php5-cgi php5-curl php5-fpm php5-enchant php5-gd php5-imap php5-gmp php5-intl php5-ldap php5-mcrypt php5-mysql php5-odbc php5-pgsql php5-readline php5-tidy php5-xmlrpc php5-sqlite php5-xsl > /dev/null 2>&1 || error "PHP 5 installation error"; }
 ### Complete install
-function install { read -p "`question 'Enter passwd for MySQL root user: '`" mysqlpasswd; apt-auto; install_nginx; install_acme; install_php_5; install_php_7; install_mysql $mysqlpasswd; }
+function install { read -p "`question 'Enter passwd for MySQL root user: '`" mysqlpasswd; read -p "`question 'Enter domain for mail: '`" maildomain; apt-auto; install_nginx; install_acme; install_php_5; install_php_7; install_mysql $mysqlpasswd; install_mta $maildomain $mysqlpasswd; }
 
 # enchant output
 function error { echo -e "\e[31m	[E]: $1\e[0m"; exit; }

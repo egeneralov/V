@@ -1,9 +1,9 @@
 #!/bin/bash
-domain
-mailpasswd
-user
-password
-mysqlrootpasswd
+#domain
+#mailpasswd
+#user
+#password
+#mysqlrootpasswd
 
 function install_mta {
 	domain=$1; mysqlrootpasswd=$2; echo $domain > /etc/mailname; title "Installing MTA (postfix & dovecot).";
