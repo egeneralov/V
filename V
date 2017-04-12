@@ -67,7 +67,7 @@ function add_site_https {
 	;;
 	esac
 	echo -e "\n\t1. [HTML]\n\t2. PHP 5\n\t3. PHP 7\n\t4. Proxy";
-	read -p "`question 'Site type? '`" -n 1 site_type;
+	read -p "`question 'Site type? '`" -n 1 site_type; echo '';
 	case "$site_type" in
 	1) ng_https_html $1;
 	;;
