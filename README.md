@@ -29,6 +29,7 @@ The project is the easiest solution in its category. Clear and silient installat
 
 ### Warning
 
+0. Domain passwords will be writen to */root/.Vdomainpasswd*. Lastest passwd in this file will valid for system user, first - for mysql.
 1. Wasn`t tested with sudo. Please, run as root. Without root privileges, it will not work - they are required to manage services and configurations.
 2. All MySQL users will allow connect from all hosts. **But** you must edit mysql config to bind to port.
 3. Currently will install PHP *5 and 7* together.
