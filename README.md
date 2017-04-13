@@ -7,6 +7,7 @@ V project was created to automate routine activities to automate work with the s
     - [acme.sh](https://github.com/Neilpang/acme.sh) - let`s enctypt on bash
     - PHP version [5](http://php.net/archive/2017.php#id2017-01-19-3) and [7.0](http://php.net/archive/2017.php#id2017-03-16-1)
     - [MySQL](https://www.mysql.com)
+    - [ProFTPD](http://www.proftpd.org)
 - Provide auto setup nginx configurations for html *(static)*, php5, php7, based on my [MTA](http://github.com/egeneralov/mta/) and **will** provide proftpd installation.
 - Provide functional for MTA managment **(current only basic functions)**
 
@@ -32,7 +33,6 @@ The project is the easiest solution in its category. Clear and silient installat
 
 ## ToDo
 
-- Add (s)FTP support
 - V **info**    - get info about site. Main [Q] - security.
 - Modify PHP configurations
 - (?) add PostgreSQL 3.6 support (?) (trouble in config generation)
