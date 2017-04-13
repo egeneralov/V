@@ -20,7 +20,7 @@ V project was created to automate routine activities to automate work with the s
     - PHP version [5](http://php.net/archive/2017.php#id2017-01-19-3) and [7.0](http://php.net/archive/2017.php#id2017-03-16-1)
     - [MySQL](https://www.mysql.com)
     - [ProFTPD](http://www.proftpd.org)
-- Provide auto setup nginx configurations for html *(static)*, php5, php7, based on my [MTA](http://github.com/egeneralov/mta/) and **will** provide proftpd installation.
+- Provide auto setup nginx configurations for html *(static)*, php5, php7, based on my [MTA](http://github.com/egeneralov/mta/) and proftpd installation.
 - Provide functional for MTA managment **(current only basic functions)**
 
 ## Why V?
