@@ -1,5 +1,17 @@
 # V - easy VPS managment
 
+## Installation
+
+First way:
+
+	wget https://raw.githubusercontent.com/egeneralov/V/master/V; chmod +x V; mv V /sbin/;
+
+Second way:
+
+	curl -s https://raw.githubusercontent.com/egeneralov/V/master/V > /sbin/V; chmod +x /sbin/V;
+
+## Description
+
 V project was created to automate routine activities to automate work with the server based on Linux Debian. Can be used in lxc container. The script is a turnkey solution and provides the following functionality:
 
 - Installing:
