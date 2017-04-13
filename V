@@ -114,6 +114,9 @@ function add_site_http {
 	*) ng_http_html $1; ng_rewrite_www $1; error_only "Wrong number."; title "Site $1 was created as html site.";
 	;;
 	esac;
+	curl -sS https://raw.githubusercontent.com/egeneralov/V/master/index.html > /sites/$1/public/index.html;
+	sed -i "s/New Site/$domain/g" /sites/$1/public/index.html;
+	chown -R $1:www-data /sites/$1;
 	ng_enable $1; ng_reload;
 	title "Nginx config ready and applied";
 }
@@ -145,6 +148,9 @@ function add_site_https {
 	*) ng_https_html $1; ng_rewrite_www $1; ng_rewrite_https $1; error_only "Wrong number."; title "Site $1 was created as html site.";
 	;;
 	esac
+	curl -sS https://raw.githubusercontent.com/egeneralov/V/master/index.html > /sites/$1/public/index.html;
+	sed -i "s/New Site/$domain/g" /sites/$1/public/index.html;
+	chown -R $1:www-data /sites/$1;
 	ng_enable $1; ng_reload;
 	title "Nginx config ready and applied";
 }
