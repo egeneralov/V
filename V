@@ -1,5 +1,17 @@
 #!/bin/bash
 
+## install FTP support
+function install_ftp {
+        title "Installing FTP support";
+        debconf-set-selections <<< "proftpd-basic shared/proftpd/inetd_or_standalone select standalone";
+        apt-get install -y proftpd > /dev/null 2>&1 || error "Installing FTP support failed";
+        echo "DefaultRoot ~" >> /etc/proftpd/proftpd.conf; # All users locked in their homes
+        echo -e "<IfModule mod_tls.c>\nTLSEngine\ton\nTLSLog\t/var/log/proftpd/tls.log\nTLSProtocol\tSSLv23\nTLSOptions\tNoCertRequest\nTLSRSACertificateFile\t/etc/postfix/server.crt\nTLSRSACertificateKeyFi$
+        sed -i 's/#Include \/etc\/proftpd\/tls.conf/Include \/etc\/proftpd\/tls.conf/g' /etc/proftpd/proftpd.conf; # enable tls support
+        echo -e "127.0.0.1\t`uname -n`" >> /etc/hosts; /etc/init.d/proftpd restart > /dev/null 2>&1 || error "Failed to restart ftp service"; # must resolv himself
+        title "FTP (tls) support ready";
+}
+
 ### Install MTA
 function install_mta {
 	domain=$1; mysqlrootpasswd=$2; mailpasswd=$2; echo $domain > /etc/mailname; title "Installing MTA (postfix & dovecot).";
@@ -40,7 +52,7 @@ function install_php_7 { add_repo_dotdeb; title "Installig PHP 7"; apt-get insta
 ### Install php 5 (123 mb)
 function install_php_5 { title "Installig PHP 5"; apt-get install -y php5 php5-cli php5-apcu php5-geoip php5-gnupg php5-imagick php5-json php5-memcache php5-memcached php5-oauth php5-pecl-http php5-redis php5-cgi php5-curl php5-fpm php5-enchant php5-gd php5-imap php5-gmp php5-intl php5-ldap php5-mcrypt php5-mysql php5-odbc php5-pgsql php5-readline php5-tidy php5-xmlrpc php5-sqlite php5-xsl > /dev/null 2>&1 || error "PHP 5 installation error"; }
 ### Complete install
-function install { read -p "`question 'Enter passwd for MySQL root user: '`" mysqlpasswd; read -p "`question 'Enter domain for mail: '`" maildomain; apt-auto; install_nginx; install_acme; install_php_5; install_php_7; install_mysql $mysqlpasswd; install_mta $maildomain $mysqlpasswd; }
+function install { read -p "`question 'Enter passwd for MySQL root user: '`" mysqlpasswd; read -p "`question 'Enter domain for mail: '`" maildomain; apt-auto; install_nginx; install_acme; install_php_5; install_php_7; install_mysql $mysqlpasswd; install_mta $maildomain $mysqlpasswd; install_ftp; }
 # MTA functions
 function add_mail_domain { echo "REPLACE INTO \`domains\` SET \`domain\` = '$1';" | mysql -uroot -p$2 mail; }
 function add_mail_user { read -p "`question 'Enter password: '`" mysqlrootpasswd || error "MySQL mail password"; read -p "`question 'Enter domain: '`" domain; read -p "`question 'Enter user: '`" user; email="$user@$domain"; read -p "`question 'Enter password: '`" password; echo "INSERT INTO \`domains\` (\`domain\`) VALUES ('$domain');" | mysql -uroot -p$2 mail; echo "INSERT INTO \`users\` (\`email\`, \`password\`, \`quota\`, \`domain\`) VALUES ('$user@$domain', encrypt('$password'), '20971520', '$domain');" | mysql -uroot -p$mysqlrootpasswd mail > /dev/null 2>&1; }
