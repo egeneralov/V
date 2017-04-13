@@ -80,7 +80,7 @@ function ssl_generate { title "Please, answer for simple questions."; openssl re
 function ssl_import { title "Importing SSL files. "; pwd=`pwd`; read -p "`question 'Enter location for .crt [$pwd/]: '`" ssl_crt; read -p "`question 'Enter location for .key [./]: '`" ssl_key; cat `pwd`/$ssl_crt > /sites/$1/ssl/$1.crt || error "Failed to write crt"; cat `pwd`/$ssl_key > /sites/$1/ssl/$1.key || error "Failed to write key"; title "Import succeseful"; }
 ## mysql database and user add (step adding site)
 function add_mysql_database {
-	domain=$1; domain=`echo $domain | sed 's/\./_/g'`; passwd=`openssl rand -base64 12`;
+	domain=$1; domain=`echo $domain | sed 's/-/_/g'| sed 's/\./_/g'`; passwd=`openssl rand -base64 12`;
 	echo "CREATE DATABASE $domain;" | mysql -uroot -p$2 mysql > /dev/null 2>&1 || error_only "create database failed";
 	echo "CREATE USER '$domain'@'%' IDENTIFIED BY '$passwd';" | mysql -uroot -p$2 $domain > /dev/null 2>&1 || error_only "create user failed";
 	title "MySQL database & user: $domain";	title "MySQL passwd for user $domain: $passwd";
