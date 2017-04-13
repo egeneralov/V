@@ -195,12 +195,15 @@ function add_site {
 function del_site {
 	if [ -z "$1" ]; then error "Specify domain name."; fi;
 	read -p "`question 'Del site $1? [y/N]: '`" -n 1 del_site;
-	if [[ "$del_site" != "y" || "$del_site" != "Y" ]]; then error "Aborted"; fi;
+	if [[ "$del_site" == "n" || "$del_site" == "N" || "$del_site" == "" ]]; then error "Aborted"; fi; echo '';
 	read -p "`question 'Del files $1? [y/N]: '`" -n 1 del_files;
-	if [[ "$del_files" == "y" || "$del_files" == "Y" ]]; then deluser $1 > /dev/null 2>&1; rm -rf /sites/$1; fi;
-	read -p "`question 'Del database for $1? [y/N]: '`" -n 1 del_database;
-	read -p "`question 'MySQL root password: '`" -n 1 mysqlpasswd;
-	if [[ "$del_database" == "y" || "$del_database" == "Y" ]]; then mysql -uroot -p$mysqlpasswd "DROP DATABASE $1; DROP USER IF EXISTS $1;"; fi;
+	if [[ "$del_files" == "n" || "$del_files" == "N" || "$del_files" == "" ]]; then error "Aborted"; fi; echo '';
+	deluser $1 > /dev/null 2>&1; rm -rf /sites/$1;
+	read -p "`question 'Del database for $1? [y/N]: '`" -n 1 del_db; echo '';
+	read -p "`question 'MySQL root password: '`" mysqlpasswd;
+	if [[ "$del_db" == "n" || "$del_db" == "N" || "$del_db" == "" ]]; then error "Aborted"; fi; echo '';
+	domain=`echo $1 | sed 's/-/_/g'| sed 's/\./_/g'`;
+	echo "DROP DATABASE $domain; DROP USER $domain;" | mysql -uroot -p$mysqlpasswd mysql;
 }
 
 case "$1" in
@@ -219,14 +222,3 @@ ls) ng_ls_enabled; ng_ls_disabled;
 *) my_help;
 ;;
 esac;
-
-
-
-
-
-
-
-
-
-
-
