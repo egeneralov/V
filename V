@@ -117,7 +117,7 @@ function add_site_http {
 	;;
 	esac;
 	curl -sS https://raw.githubusercontent.com/egeneralov/V/master/index.html > /sites/$1/public/index.html;
-	sed -i "s/New Site/$domain/g" /sites/$1/public/index.html;
+	sed -i "s/New Site/$1/g" /sites/$1/public/index.html;
 	chown -R $1:www-data /sites/$1;
 	enchant_config $1;
 	ng_enable $1; ng_reload;
@@ -152,7 +152,7 @@ function add_site_https {
 	;;
 	esac
 	curl -sS https://raw.githubusercontent.com/egeneralov/V/master/index.html > /sites/$1/public/index.html;
-	sed -i "s/New Site/$domain/g" /sites/$1/public/index.html;
+	sed -i "s/New Site/$1/g" /sites/$1/public/index.html;
 	chown -R $1:www-data /sites/$1;
 	enchant_config $1;
 	ng_enable $1; ng_reload;
