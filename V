@@ -168,7 +168,7 @@ function add_site {
 	echo '';
 	read -p "`question 'Password : '`" passwd;
 	echo "$1:$passwd" | chpasswd > /dev/null 2>&1;
-	echo "Domain: $1 $passwd" > /root/.Vdomainpasswd;
+	echo "Domain: $1 $passwd" >> /root/.Vdomainpasswd;
 	mkdir -p /sites/$1/{public,ssl,backup};
 	chown -R $1:www-data /sites/$1;
 	read -p "`question 'Need SSL $1? [y/N]: '`" -n 1 need_ssl;
