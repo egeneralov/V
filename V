@@ -196,6 +196,7 @@ function del_site {
 	if [ -z "$1" ]; then error "Specify domain name."; fi;
 	read -p "`question 'Del site $1? [y/N]: '`" -n 1 del_site;
 	if [[ "$del_site" == "n" || "$del_site" == "N" || "$del_site" == "" ]]; then error "Aborted"; fi; echo '';
+	rm /etc/nginx/sites-enabled/$1 > /dev/null 2>&1; rm /etc/nginx/sites-available/$1 > /dev/null 2>&1;
 	read -p "`question 'Del files $1? [y/N]: '`" -n 1 del_files;
 	if [[ "$del_files" == "n" || "$del_files" == "N" || "$del_files" == "" ]]; then error "Aborted"; fi; echo '';
 	deluser $1 > /dev/null 2>&1; rm -rf /sites/$1;
