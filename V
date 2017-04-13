@@ -98,6 +98,7 @@ function add_mysql_database {
 	domain=$1; domain=`echo $domain | sed 's/-/_/g'| sed 's/\./_/g'`; passwd=`openssl rand -base64 12`;
 	echo "CREATE DATABASE $domain;" | mysql -uroot -p$2 mysql > /dev/null 2>&1 || error_only "create database failed";
 	echo "CREATE USER '$domain'@'%' IDENTIFIED BY '$passwd';" | mysql -uroot -p$2 $domain > /dev/null 2>&1 || error_only "create user failed";
+	echo "grant all privileges on $domain.* to $domain@'%' identified by '$passwd';" | mysql -uroot -p$2 mysql > /dev/null 2>&1 || error_only "grant user access to database failed";
 	title "MySQL database & user: $domain";	title "MySQL passwd for user $domain: $passwd"; echo "MySQL: $domain $passwd" >> /root/.Vdomainpasswd;
 }
 
