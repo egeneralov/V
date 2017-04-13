@@ -62,7 +62,7 @@ function question { echo -e "\e[93m [Q]: \e[32m$1\e[0m"; }
 function error_only { echo -e "\e[31m	[E]: $1\e[0m"; }
 function title { echo -e "\e[32m	[I]: $1\e[0m"; }
 # need
-function my_help { error_only "	V [ls|add_site|del_site|add_mail_user|del_mail_user]"; }
+function my_help { title "	V [ls|add_site|del_site|add_mail_user|del_mail_user]"; }
 function backup_file { cp $1 $1.orig.`date +%Y-%m-%d-%H-%S` || error "Error backup $1 as $1.orig.`date +%Y-%m-%d-%H-%S`"; }
 ## nginx commands
 function ng_reload { service nginx reload; }
