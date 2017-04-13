@@ -71,6 +71,8 @@ function ng_disable { if [ ! -f "/etc/nginx/sites-enabled/$1" ]; then error "Sit
 ## nginx ls sites
 function ng_ls_enabled { title "Sites enabled"; for site in `ls /etc/nginx/sites-enabled/`; do echo -e "\t\t$site"; done; }
 function ng_ls_disabled { error_only "Sites disabled"; for site in `ls /etc/nginx/sites-available/`; do echo -e "\t\t$site"; done }
+## nginx enchant config
+function enchant_config { sed -i 's/{/{\n\t/g' /etc/nginx/sites-enabled/$1; sed -i 's/}/}\n\t/g' /etc/nginx/sites-enabled/$1; sed -i 's/;/;\n\t/g' /etc/nginx/sites-enabled/$1; }
 ## http config
 function ng_http_html { cat <<< " server { listen 80; root /sites/$1/public; index index.php index.html index.htm; server_name $1;} " > /etc/nginx/sites-available/$1;}
 function ng_http_php_5 { cat <<< " server { listen 80; root /sites/$1/public; index index.php index.html index.htm; server_name $1; client_max_body_size 100m; location / { index  index.php index.html; rewrite  ^(.*)\$ /index.php?\$args last; } location ~ \.php\$ { try_files \$uri = 404; fastcgi_pass unix:/var/run/php5-fpm.sock; fastcgi_index index.php; fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name; include fastcgi_params; } } " > /etc/nginx/sites-available/$1; }
@@ -96,7 +98,7 @@ function add_mysql_database {
 	domain=$1; domain=`echo $domain | sed 's/-/_/g'| sed 's/\./_/g'`; passwd=`openssl rand -base64 12`;
 	echo "CREATE DATABASE $domain;" | mysql -uroot -p$2 mysql > /dev/null 2>&1 || error_only "create database failed";
 	echo "CREATE USER '$domain'@'%' IDENTIFIED BY '$passwd';" | mysql -uroot -p$2 $domain > /dev/null 2>&1 || error_only "create user failed";
-	title "MySQL database & user: $domain";	title "MySQL passwd for user $domain: $passwd";
+	title "MySQL database & user: $domain";	title "MySQL passwd for user $domain: $passwd"; echo "MySQL: $domain $passwd" >> /root/.Vdomainpasswd;
 }
 
 function add_site_http {
@@ -117,6 +119,7 @@ function add_site_http {
 	curl -sS https://raw.githubusercontent.com/egeneralov/V/master/index.html > /sites/$1/public/index.html;
 	sed -i "s/New Site/$domain/g" /sites/$1/public/index.html;
 	chown -R $1:www-data /sites/$1;
+	enchant_config $1;
 	ng_enable $1; ng_reload;
 	title "Nginx config ready and applied";
 }
@@ -151,6 +154,7 @@ function add_site_https {
 	curl -sS https://raw.githubusercontent.com/egeneralov/V/master/index.html > /sites/$1/public/index.html;
 	sed -i "s/New Site/$domain/g" /sites/$1/public/index.html;
 	chown -R $1:www-data /sites/$1;
+	enchant_config $1;
 	ng_enable $1; ng_reload;
 	title "Nginx config ready and applied";
 }
@@ -164,6 +168,7 @@ function add_site {
 	echo '';
 	read -p "`question 'Password : '`" passwd;
 	echo "$1:$passwd" | chpasswd > /dev/null 2>&1;
+	echo "Domain: $1 $passwd" > /root/.Vdomainpasswd;
 	mkdir -p /sites/$1/{public,ssl,backup};
 	chown -R $1:www-data /sites/$1;
 	read -p "`question 'Need SSL $1? [y/N]: '`" -n 1 need_ssl;
