@@ -2,14 +2,14 @@
 
 ## install FTP support
 function install_ftp {
-        title "Installing FTP support";
-        debconf-set-selections <<< "proftpd-basic shared/proftpd/inetd_or_standalone select standalone";
-        apt-get install -y proftpd > /dev/null 2>&1 || error "Installing FTP support failed";
-        echo "DefaultRoot ~" >> /etc/proftpd/proftpd.conf; # All users locked in their homes
-        echo -e "<IfModule mod_tls.c>\nTLSEngine\ton\nTLSLog\t/var/log/proftpd/tls.log\nTLSProtocol\tSSLv23\nTLSOptions\tNoCertRequest\nTLSRSACertificateFile\t/etc/postfix/server.crt\nTLSRSACertificateKeyFi$
-        sed -i 's/#Include \/etc\/proftpd\/tls.conf/Include \/etc\/proftpd\/tls.conf/g' /etc/proftpd/proftpd.conf; # enable tls support
-        echo -e "127.0.0.1\t`uname -n`" >> /etc/hosts; /etc/init.d/proftpd restart > /dev/null 2>&1 || error "Failed to restart ftp service"; # must resolv himself
-        title "FTP (tls) support ready";
+	title "Installing FTP support";
+	debconf-set-selections <<< "proftpd-basic shared/proftpd/inetd_or_standalone select standalone";
+	apt-get install -y proftpd > /dev/null 2>&1 || error "Installing FTP support failed";
+	echo "DefaultRoot ~" >> /etc/proftpd/proftpd.conf; # All users locked in their home
+	echo -e "<IfModule mod_tls.c>\nTLSEngine\ton\nTLSLog\t/var/log/proftpd/tls.log\nTLSProtocol\tSSLv23\nTLSOptions\tNoCertRequest\nTLSRSACertificateFile\t/etc/postfix/server.crt\nTLSRSACertificateKeyFile\t/etc/postfix/server.key\nTLSVerifyClient\toff\nTLSRequired\ton\n</IfModule>\n" > /etc/proftpd/tls.conf; # TLS one-line config
+	sed -i 's/#Include \/etc\/proftpd\/tls.conf/Include \/etc\/proftpd\/tls.conf/g' /etc/proftpd/proftpd.conf; # enable tls support
+	echo -e "127.0.0.1\t`uname -n`" >> /etc/hosts; /etc/init.d/proftpd restart > /dev/null 2>&1 || error "Failed to restart ftp service"; # must resolv himself
+	title "FTP tls support ready";
 }
 
 ### Install MTA
