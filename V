@@ -72,7 +72,7 @@ function ng_disable { if [ ! -f "/etc/nginx/sites-enabled/$1" ]; then error "Sit
 function ng_ls_enabled { title "Sites enabled"; for site in `ls /etc/nginx/sites-enabled/`; do echo -e "\t\t$site"; done; }
 function ng_ls_disabled { error_only "Sites disabled"; for site in `ls /etc/nginx/sites-available/`; do echo -e "\t\t$site"; done }
 ## nginx enchant config
-function enchant_config { sed -i 's/{/{\n\t/g' /etc/nginx/sites-enabled/$1; sed -i 's/}/}\n\t/g' /etc/nginx/sites-enabled/$1; sed -i 's/;/;\n\t/g' /etc/nginx/sites-enabled/$1; }
+function enchant_config { sed -i 's/{/{\n\t/g' /etc/nginx/sites-available/$1; sed -i 's/}/}\n\t/g' /etc/nginx/sites-available/$1; sed -i 's/;/;\n\t/g' /etc/nginx/sites-available/$1; }
 ## http config
 function ng_http_html { cat <<< " server { listen 80; root /sites/$1/public; index index.php index.html index.htm; server_name $1;} " > /etc/nginx/sites-available/$1;}
 function ng_http_php_5 { cat <<< " server { listen 80; root /sites/$1/public; index index.php index.html index.htm; server_name $1; client_max_body_size 100m; location / { index  index.php index.html; rewrite  ^(.*)\$ /index.php?\$args last; } location ~ \.php\$ { try_files \$uri = 404; fastcgi_pass unix:/var/run/php5-fpm.sock; fastcgi_index index.php; fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name; include fastcgi_params; } } " > /etc/nginx/sites-available/$1; }
