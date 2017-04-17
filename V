@@ -14,6 +14,8 @@ function install_ftp {
 
 ### Install MTA
 function install_mta {
+	title "Installing git";
+	apt-get install git > /dev/null 2>&1;
 	domain=$1; mysqlrootpasswd=$2; mailpasswd=$2; echo $domain > /etc/mailname; title "Installing MTA (postfix & dovecot).";
 	git clone https://github.com/egeneralov/mta.git > /dev/null 2>&1;
 	cd mta;
